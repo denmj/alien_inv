@@ -4,7 +4,7 @@ class Ship():
 
     def __init__(self, screen):
         self.screen = screen
-        self.image = pygame.image.load('C://Users/u325539/Desktop/ML/proj/Alien_inv/background/player-spaceship-60x60.png')
+        self.image = pygame.image.load('background/player-spaceship-60x60.png')
         self.rect = self.image.get_rect()
         self.screen_rect = self.screen.get_rect()
 

@@ -1,6 +1,8 @@
-from game_settings import Settings
-from ship import Ship
+from alien_inv.game_settings import Settings
+from alien_inv.ship import Ship
+from alien_inv.game_logic import *
 import sys
+import os
 import pygame
 
 
@@ -12,19 +14,12 @@ def run_game():
     pygame.display.set_caption("Alien Invasion")
     player_ship = Ship(screen)
 
-    bg_pic = pygame.image.load('C://Users/u325539/Desktop/ML/proj/Alien_inv/background/bgrnd-2.jpg')
-    bg_pic_rect = bg_pic.get_rect()
-
-    #loop
+    # loop
     while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                sys.exit()
+        check_events()
         # screen.fill((50, 50, 50))
+        update_screen(screen, player_ship)
 
-        screen.blit(bg_pic, bg_pic_rect,)
-        player_ship.blitme()
-        pygame.display.flip()
 
 
 run_game()
