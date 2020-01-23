@@ -15,15 +15,17 @@ def run_game():
     screen = pygame.display.set_mode((game_settings.screen_width, game_settings.screen_height))
     pygame.display.set_caption("Alien Invasion")
     player_ship = Ship(screen)
-    ai_alien = Alien(game_settings, screen)
     rockets = Group()
     aliens = Group()
+
+    create_alien_fleet(game_settings, screen, aliens)
+
     # loop
     while True:
         check_events(game_settings, screen, player_ship, rockets)
         player_ship.update_position()
         update_rockets(rockets)
-        update_screen(screen, player_ship, rockets, ai_alien)
+        update_screen(screen, player_ship, rockets, aliens)
 
 
 run_game()
