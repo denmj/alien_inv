@@ -6,7 +6,12 @@ class Settings:
         self.screen_height = 800
         self.bg_color = (230, 230, 230)
 
-    def set_background(self):
+        # rocket settings
+        self.rocket_speed_factor = 1
+        self.rocket_width = 3
+        self.rocket_height = 15
+        self.rocket_color = 60, 60, 60
 
+    def set_background(self):
         pass
 

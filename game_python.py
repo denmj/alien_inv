@@ -16,8 +16,8 @@ def run_game():
 
     # loop
     while True:
-        check_events()
-        # screen.fill((50, 50, 50))
+        check_events(player_ship)
+        player_ship.update_position()
         update_screen(screen, player_ship)
 
 
