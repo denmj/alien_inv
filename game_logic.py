@@ -4,17 +4,32 @@ from rocket import Rocket
 from alien import Alien
 
 
+def get_number_aliens_x(settings, alien_width):
+    available_space_x = settings.screen_width - (2 * alien_width)
+    number_aliens_x = int(available_space_x / (2 * alien_width))
+    return number_aliens_x
+
+
+def get_number_aliens_rows(settings, player_ship_height, alien_height):
+    available_space_y = settings.screen_height - 3 * alien_height - player_ship_height
+    number_rows = available_space_y / (2 * alien_height)
+    return number_rows
+
+
+def create_alien(settnigs, screen, aliens, alien_number):
+    alien_ship = Alien(settnigs, screen)
+    alien_width = alien_ship.rect.width
+    alien_ship.x = alien_width + 2 * alien_width * alien_number
+    alien_ship.rect.x = alien_ship.x
+    aliens.add(alien_ship)
+
+
 def create_alien_fleet(settings, screen, aliens):
-    new_alien = Alien(settings, screen)
-    alien_width = new_alien.rect.width
-    avalieble_space_x = settings.screen_width - (2*alien_width)
-    number_aliens_x = int(avalieble_space_x / (2*alien_width))
+    alien = Alien(settings, screen)
+    number_aliens_x = get_number_aliens_x(settings, alien.rect.width)
 
     for numb_of_alien in range(number_aliens_x):
-        alien_ship = Alien(settings, screen)
-        alien_ship.x = alien_width + 2 * alien_width * numb_of_alien
-        alien_ship.rect.x = alien_ship.x
-        aliens.add(alien_ship)
+        create_alien(settings, screen, aliens, numb_of_alien)
 
 
 def check_keydown_events(event, settings, screen, player_ship, rockets):
