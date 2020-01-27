@@ -4,7 +4,7 @@ import pygame
 class Ship:
     def __init__(self, screen):
         self.screen = screen
-        self.image = pygame.image.load('background/player-spaceship-60x60.png')
+        self.image = pygame.image.load('background/orange-ship.png')
         self.rect = self.image.get_rect()
         self.screen_rect = self.screen.get_rect()
 
@@ -22,3 +22,6 @@ class Ship:
             self.rect.centerx += 7.5
         if self.moving_left and self.rect.left > 0:
             self.rect.centerx -= 7.5
+
+    def center_ship(self):
+        self.center = self.screen_rect.centerx

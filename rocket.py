@@ -6,8 +6,9 @@ class Rocket(Sprite):
     def __init__(self, settings, screen, player_ship):
         super().__init__()
         self.screen = screen
-
-        self.rect = pygame.Rect(0, 0, settings.rocket_width, settings.rocket_height)
+        self.image = pygame.image.load('background/laserRed16.png')
+        self.rect = self.image.get_rect()
+        # self.rect = pygame.Rect(0, 0, settings.rocket_width, settings.rocket_height)
         self.rect.centerx = player_ship.rect.centerx
         self.rect.top = player_ship.rect.top
 
@@ -23,4 +24,5 @@ class Rocket(Sprite):
         self.rect.y = self.y
 
     def draw_rocket(self):
-        pygame.draw.rect(self.screen, self.color, self.rect)
+        self.screen.blit(self.image, self.rect)
+        # pygame.draw.rect(self.screen, self.color, self.rect)
