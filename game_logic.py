@@ -1,8 +1,8 @@
 import sys
 import pygame
 from time import sleep
-from rocket import Rocket
-from alien import Alien
+from alien_inv.rocket import Rocket
+from alien_inv.alien import Alien
 
 
 def get_number_aliens_x(settings, alien_width):
@@ -17,8 +17,8 @@ def get_number_aliens_rows(settings, player_ship_height, alien_height):
     return number_rows
 
 
-def create_alien(settnigs, screen, aliens, alien_number, row_number):
-    alien_ship = Alien(settnigs, screen)
+def create_alien(settings, screen, aliens, alien_number, row_number):
+    alien_ship = Alien(settings, screen)
     alien_width = alien_ship.rect.width
     alien_ship.x = alien_width + 2 * alien_width * alien_number
     alien_ship.rect.x = alien_ship.x
@@ -43,10 +43,18 @@ def check_fleet_edges(settings, aliens):
             break
 
 
-def change_fleet_direction(settnigs, aliens):
+def check_aliens_reach_bottom(settings, stats, screen, player_ship, aliens, rockets):
+    screen_rect = screen.get_rect()
     for alien in aliens.sprites():
-        alien.rect.y += settnigs.drop_speed
-    settnigs.direction *= -1
+        if alien.rect.bottom >= screen_rect.bottom:
+            ship_hit(settings, stats, screen, player_ship, aliens, rockets)
+            break
+
+
+def change_fleet_direction(settings, aliens):
+    for alien in aliens.sprites():
+        alien.rect.y += settings.drop_speed
+    settings.direction *= -1
 
 
 def check_keydown_events(event, settings, screen, player_ship, rockets):
@@ -67,16 +75,18 @@ def fire_rocket(settings, screen, player_ship, rockets):
 
 
 def ship_hit(settings, stats, screen, player_ship, aliens, rockets):
-    stats.ship_lives_left -= 1
+    if stats.ship_lives_left > 0:
+        stats.ship_lives_left -= 1
 
-    aliens.empty()
-    rockets.empty()
+        aliens.empty()
+        rockets.empty()
 
-    create_alien_fleet(settings, screen, player_ship, aliens)
-    player_ship.center_ship()
+        create_alien_fleet(settings, screen, player_ship, aliens)
+        player_ship.center_ship()
 
-    sleep(1)
-
+        sleep(1)
+    else:
+        settings.game_active = False
 
 def check_keyup_events(event, player_ship):
     if event.key == pygame.K_RIGHT:
@@ -105,7 +115,7 @@ def check_alien_rocket_collisions(settings, screen, player_ship, aliens, rockets
 
 def check_player_ship_alien_collision(settings, stats, screen, player_ship, aliens, rockets):
     if pygame.sprite.spritecollideany(player_ship, aliens):
-        ship_hit(settings, stats, screen, player_ship, aliens, rockets )
+        ship_hit(settings, stats, screen, player_ship, aliens, rockets)
 
 
 def update_screen(screen, player_ship, rockets, aliens):
@@ -134,3 +144,4 @@ def update_aliens(settings, stats, screen, player_ship, aliens, rockets):
     check_fleet_edges(settings, aliens)
     aliens.update()
     check_player_ship_alien_collision(settings, stats, screen, player_ship, aliens, rockets)
+    check_aliens_reach_bottom(settings, stats, screen, player_ship, aliens, rockets)

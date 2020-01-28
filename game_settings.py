@@ -2,9 +2,10 @@
 class Settings:
     def __init__(self):
 
+        self.game_active = False
         # Alien settings
         self.alien_speed = 3
-        self.drop_speed = 25
+        self.drop_speed = 100
         # 1 - right -1 - left
         self.direction = 1
 
