@@ -1,8 +1,26 @@
 import sys
 import pygame
+from button import Button
 from time import sleep
-from alien_inv.rocket import Rocket
-from alien_inv.alien import Alien
+from rocket import Rocket
+from alien import Alien
+
+
+def reset_game(stats, settings, screen, player_ship, aliens, rockets):
+    stats.reset_stats()
+
+    aliens.empty()
+    rockets.empty()
+
+    create_alien_fleet(settings, screen, player_ship, aliens)
+    player_ship.center_ship()
+
+    sleep(0.2)
+
+
+def create_buttons(button_list, screen):
+    buttons = [Button(screen, button_name) for button_name in button_list]
+    return buttons
 
 
 def get_number_aliens_x(settings, alien_width):
@@ -57,17 +75,6 @@ def change_fleet_direction(settings, aliens):
     settings.direction *= -1
 
 
-def check_keydown_events(event, settings, screen, player_ship, rockets):
-    if event.key == pygame.K_RIGHT:
-        player_ship.moving_right = True
-    elif event.key == pygame.K_LEFT:
-        player_ship.moving_left = True
-    elif event.key == pygame.K_SPACE:
-        fire_rocket(settings, screen, player_ship, rockets)
-    elif event.key == pygame.K_q:
-        sys.exit()
-
-
 def fire_rocket(settings, screen, player_ship, rockets):
     if len(rockets) < settings.rocket_qnty:
         new_rocket = Rocket(settings, screen, player_ship)
@@ -88,6 +95,7 @@ def ship_hit(settings, stats, screen, player_ship, aliens, rockets):
     else:
         settings.game_active = False
 
+
 def check_keyup_events(event, player_ship):
     if event.key == pygame.K_RIGHT:
         player_ship.moving_right = False
@@ -95,10 +103,27 @@ def check_keyup_events(event, player_ship):
         player_ship.moving_left = False
 
 
-def check_events(settings, screen, player_ship, rockets):
+def check_keydown_events(event, settings, screen, player_ship, rockets):
+    if event.key == pygame.K_RIGHT:
+        player_ship.moving_right = True
+    elif event.key == pygame.K_LEFT:
+        player_ship.moving_left = True
+    elif event.key == pygame.K_SPACE:
+        fire_rocket(settings, screen, player_ship, rockets)
+    elif event.key == pygame.K_q:
+        sys.exit()
+    elif event.key == pygame.K_ESCAPE:
+        settings.game_active = not settings.game_active
+        pygame.mouse.set_visible(True)
+
+
+def check_events(stats, settings, screen, player_ship, aliens, rockets, play_button, reset_button):
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            check_button(stats, settings, screen, player_ship, aliens, rockets, play_button, reset_button, mouse_x, mouse_y)
         elif event.type == pygame.KEYDOWN:
             check_keydown_events(event, settings, screen, player_ship, rockets)
 
@@ -106,10 +131,21 @@ def check_events(settings, screen, player_ship, rockets):
             check_keyup_events(event, player_ship)
 
 
+def check_button(stats, settings, screen, player_ship, aliens, rockets, play_button, reset_button,  mouse_x, mouse_y):
+    if play_button.rect.collidepoint(mouse_x, mouse_y) and not settings.game_active:
+        settings.game_active = True
+        pygame.mouse.set_visible(False)
+    if reset_button.rect.collidepoint(mouse_x, mouse_y) and not settings.game_active:
+        reset_game(stats, settings, screen, player_ship, aliens, rockets)
+        pygame.mouse.set_visible(False)
+
+
 def check_alien_rocket_collisions(settings, screen, player_ship, aliens, rockets):
     collisions = pygame.sprite.groupcollide(rockets, aliens, True, True)
 
     if len(aliens) == 0:
+        rockets.empty()
+        settings.increase_speed()
         create_alien_fleet(settings, screen, player_ship, aliens)
 
 
@@ -118,7 +154,7 @@ def check_player_ship_alien_collision(settings, stats, screen, player_ship, alie
         ship_hit(settings, stats, screen, player_ship, aliens, rockets)
 
 
-def update_screen(screen, player_ship, rockets, aliens):
+def update_screen(settings, screen, player_ship, rockets, aliens, play_b, options_b, exit_b, reset_b,  menu):
     bg_pic = pygame.image.load('background/starfield.png')
     bg_pic_rect = bg_pic.get_rect()
 
@@ -128,6 +164,13 @@ def update_screen(screen, player_ship, rockets, aliens):
         rocket.draw_rocket()
     aliens.draw(screen)
     player_ship.blitme()
+    if not settings.game_active:
+        menu.draw_menu()
+        play_b.draw_button()
+        options_b.draw_button()
+        reset_b.draw_button()
+        exit_b.draw_button()
+
     pygame.display.flip()
 
 
