@@ -34,6 +34,7 @@ class Settings:
         self.player_ship_speed_factor = 1.5
         self.rocket_speed_factor = 10
         self.alien_speed = 3
+        self.score_points = 1
 
     def increase_speed(self):
         self.player_ship_speed_factor *= self.speedup_scale
@@ -42,3 +43,4 @@ class Settings:
         print("Player ship speed: ", self.player_ship_speed_factor)
         print("Rocket speed: ", self.player_ship_speed_factor)
         print("Alien's speed: ", self.player_ship_speed_factor)
+

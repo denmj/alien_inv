@@ -6,12 +6,13 @@ from rocket import Rocket
 from alien import Alien
 
 
-def reset_game(stats, settings, screen, player_ship, aliens, rockets):
+def reset_game(stats, score_b,  settings, screen, player_ship, aliens, rockets):
     stats.reset_stats()
 
     aliens.empty()
     rockets.empty()
-
+    settings.dynamic_leveling()
+    score_b.prep_board()
     create_alien_fleet(settings, screen, player_ship, aliens)
     player_ship.center_ship()
 
@@ -117,13 +118,13 @@ def check_keydown_events(event, settings, screen, player_ship, rockets):
         pygame.mouse.set_visible(True)
 
 
-def check_events(stats, settings, screen, player_ship, aliens, rockets, play_button, reset_button):
+def check_events(score_b, stats, settings, screen, player_ship, aliens, rockets, play_button, reset_button):
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
         elif event.type == pygame.MOUSEBUTTONDOWN:
             mouse_x, mouse_y = pygame.mouse.get_pos()
-            check_button(stats, settings, screen, player_ship, aliens, rockets, play_button, reset_button, mouse_x, mouse_y)
+            check_button(score_b, stats, settings, screen, player_ship, aliens, rockets, play_button, reset_button, mouse_x, mouse_y)
         elif event.type == pygame.KEYDOWN:
             check_keydown_events(event, settings, screen, player_ship, rockets)
 
@@ -131,18 +132,21 @@ def check_events(stats, settings, screen, player_ship, aliens, rockets, play_but
             check_keyup_events(event, player_ship)
 
 
-def check_button(stats, settings, screen, player_ship, aliens, rockets, play_button, reset_button,  mouse_x, mouse_y):
+def check_button(score_b, stats, settings, screen, player_ship, aliens, rockets, play_button, reset_button,  mouse_x, mouse_y):
     if play_button.rect.collidepoint(mouse_x, mouse_y) and not settings.game_active:
         settings.game_active = True
         pygame.mouse.set_visible(False)
     if reset_button.rect.collidepoint(mouse_x, mouse_y) and not settings.game_active:
-        reset_game(stats, settings, screen, player_ship, aliens, rockets)
+        reset_game(stats, score_b, settings, screen, player_ship, aliens, rockets)
+        settings.game_active = True
         pygame.mouse.set_visible(False)
 
 
-def check_alien_rocket_collisions(settings, screen, player_ship, aliens, rockets):
+def check_alien_rocket_collisions(settings, stats,  screen, player_ship, aliens, rockets, score_b):
     collisions = pygame.sprite.groupcollide(rockets, aliens, True, True)
-
+    if collisions:
+        stats.score += settings.score_points
+        score_b.prep_board()
     if len(aliens) == 0:
         rockets.empty()
         settings.increase_speed()
@@ -154,7 +158,9 @@ def check_player_ship_alien_collision(settings, stats, screen, player_ship, alie
         ship_hit(settings, stats, screen, player_ship, aliens, rockets)
 
 
-def update_screen(settings, screen, player_ship, rockets, aliens, play_b, options_b, exit_b, reset_b,  menu):
+def update_screen(settings, screen, player_ship, rockets,
+                  aliens, play_b, options_b, exit_b, reset_b,  menu, score_board):
+
     bg_pic = pygame.image.load('background/starfield.png')
     bg_pic_rect = bg_pic.get_rect()
 
@@ -164,6 +170,8 @@ def update_screen(settings, screen, player_ship, rockets, aliens, play_b, option
         rocket.draw_rocket()
     aliens.draw(screen)
     player_ship.blitme()
+    score_board.draw_board()
+
     if not settings.game_active:
         menu.draw_menu()
         play_b.draw_button()
@@ -174,13 +182,13 @@ def update_screen(settings, screen, player_ship, rockets, aliens, play_b, option
     pygame.display.flip()
 
 
-def update_rockets(settings, screen, player_ship, rockets, aliens):
+def update_rockets(settings, stats, screen, player_ship, rockets, aliens, score_b):
     rockets.update()
     for rocket in rockets.copy():
         if rocket.rect.bottom <= 0:
             rockets.remove(rocket)
 
-    check_alien_rocket_collisions(settings, screen, player_ship, aliens, rockets)
+    check_alien_rocket_collisions(settings, stats,  screen, player_ship, aliens, rockets, score_b)
 
 
 def update_aliens(settings, stats, screen, player_ship, aliens, rockets):
